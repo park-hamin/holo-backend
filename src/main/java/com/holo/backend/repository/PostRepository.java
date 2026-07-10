@@ -3,8 +3,10 @@ package com.holo.backend.repository;
 import com.holo.backend.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * PostRepository - 게시물 DB 접근 담당.
@@ -19,4 +21,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
      */
     @Query("SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.participants ORDER BY p.createdAt DESC")
     List<Post> findAllWithParticipants();
+
+    /**
+     * 게시물 하나를 참여 기록까지 함께 불러옴 (상세 페이지용).
+     * 참여 기록을 같이 로딩해야 participants.size()를 안전하게 셀 수 있음.
+     */
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.participants WHERE p.id = :id")
+    Optional<Post> findByIdWithParticipants(@Param("id") Long id);
 }
